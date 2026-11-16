@@ -1,0 +1,51 @@
+name: web build
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "10 6 * * 1-5"   # weekday mornings, so the simulated history ends on the current day
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"   # the Python of the Pyodide release the page loads
+          cache: pip
+          cache-dependency-path: requirements-web.txt
+
+      - run: pip install -r requirements-web.txt
+
+      - run: playwright install --with-deps chromium
+
+      - run: python scripts/build_site.py --check-engine
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

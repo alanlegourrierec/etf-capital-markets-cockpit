@@ -6,6 +6,8 @@ A dashboard for a fixed income ETF desk. It follows a bond ETF from both sides o
 
 It runs on LSEG Workspace data when Workspace is open on the machine, and on a built-in market simulator otherwise. So it starts anywhere, and it always says which numbers are live and which are simulated.
 
+The live page is at https://alanlegourrierec.github.io/etf-capital-markets-cockpit/ and runs on the simulator.
+
 ![Overview page, simulated data](docs/overview.png)
 
 | Page | What it answers |
@@ -34,8 +36,23 @@ The browser opens on http://127.0.0.1:8050. Without LSEG the app runs on the sim
 python app.py --mode sim                  # simulator only, does not look for LSEG
 python app.py --port 8060 --no-browser
 pip install -r requirements-dev.txt
-pytest -q                                 # 31 tests
+pytest -q                                 # 39 tests
 ```
+
+## The web version
+
+GitHub Pages serves files and runs no Python, while a Dash app asks a Python server for every chart. So the web version brings its own answers, in two layers.
+
+- **Precomputed views.** The build opens the app in a headless browser and keeps every callback answer for each ETF, lookback and theme, then for the one-click choices of each tab and for each trade idea. Those load at once.
+- **Python in the browser.** Anything else, such as moving a slider on the AP Arbitrage page, is computed on the visitor's machine. The page loads [Pyodide](https://pyodide.org) in a web worker, unpacks the same code as `python app.py --mode sim` and answers the request there. A note at the bottom of the page says when the engine is ready.
+
+```
+pip install -r requirements-web.txt
+playwright install chromium
+python scripts/build_site.py --check      # writes site/ and opens it in a headless browser
+```
+
+A workflow rebuilds and publishes the page on every push and every weekday morning, so the simulated history always ends on the current day. It also asks the engine for a view that was precomputed and fails if the two disagree. Adding `?engine=off` to the address keeps the page on its precomputed views.
 
 ## How it works
 
@@ -58,7 +75,9 @@ engine/
   analytics.py          front of the engine, with a cache
 ui/                     Dash layout, Plotly figures, one callback per page
 scripts/lseg_check.py   says which RICs and fields answer on your licence
-tests/                  engine, LSEG path with a fake library, the whole app
+scripts/build_site.py   static web build, front end, precomputed views and engine archive
+web/                    what the page runs in place of a server, and the Pyodide worker
+tests/                  engine, LSEG path with a fake library, the whole app, the web build
 ```
 
 The engine does not depend on the interface, so it also runs in a notebook.

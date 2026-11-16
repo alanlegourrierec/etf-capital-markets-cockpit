@@ -56,6 +56,10 @@ SEED = 7                 # simulator seed, so results can be reproduced
 HISTORY_DAYS = 756       # about three years of business days
 LIVE_REFRESH_MS = 5000   # refresh pace of the intraday panel
 
+# Last day of the simulated history, as YYYY-MM-DD. Empty means today. The web
+# build pins it so the precomputed pages and the engine in the browser agree.
+SIM_ASOF = os.getenv("ETF_DASH_ASOF", "").strip() or None
+
 # ----------------------------------------------------------------------------
 # 2. Rating scale and simulator calibration
 # ----------------------------------------------------------------------------

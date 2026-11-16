@@ -6,3 +6,6 @@ venv/
 
 # LSEG app key, read by config.py and never committed
 .lseg_app_key
+
+# Static web build, written by scripts/build_site.py
+site/

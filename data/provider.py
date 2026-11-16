@@ -38,7 +38,7 @@ class DataProvider:
     def __init__(self, mode: str = cfg.DATA_MODE, seed: int = cfg.SEED,
                  client: Optional[LsegClient] = None):
         self.mode = mode
-        self.sim = SyntheticMarket(seed=seed)
+        self.sim = SyntheticMarket(seed=seed, end=cfg.SIM_ASOF)
         self.client = client
         self._cache: Dict[str, object] = {}
         self._status: Dict[str, dict] = {}

@@ -1,0 +1,7 @@
+-r requirements.txt
+# Same numpy, pandas and scipy as the Pyodide release the page loads (scripts/build_site.py),
+# so the precomputed views and the engine in the browser give the same numbers
+numpy==2.4.6
+pandas==3.0.2
+scipy==1.18.0
+playwright>=1.49
